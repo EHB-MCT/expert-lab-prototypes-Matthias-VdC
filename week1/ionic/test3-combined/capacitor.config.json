@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "Expert Lab",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}

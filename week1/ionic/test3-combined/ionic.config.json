@@ -1,0 +1,8 @@
+{
+  "name": "Expert Lab",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react",
+  "id": "22c73520"
+}
