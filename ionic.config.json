@@ -1,7 +1,0 @@
-{
-  "name": "maps",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react"
-}
