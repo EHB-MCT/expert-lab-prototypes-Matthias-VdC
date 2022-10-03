@@ -5,6 +5,7 @@ import {
   IonTab,
   IonTitle,
   IonToolbar,
+  useIonAlert,
   useIonViewWillEnter,
 } from "@ionic/react";
 import { useRef, useState } from "react";
@@ -13,8 +14,9 @@ import "./Map.css";
 
 const Map: React.FC = () => {
   const key = "AIzaSyDehWh4MS-F_1lInu3tDMl5_d489x2s_hM";
-  let newMap;
+  let newMap!: GoogleMap;
   const mapRef = useRef(null);
+  const [presentAlert] = useIonAlert();
 
   const [mapConfig, setMapConfig] = useState({
     zoom: 10,
@@ -24,11 +26,37 @@ const Map: React.FC = () => {
   const createMap = async () => {
     if (!mapRef.current) return;
 
-    newMap = await GoogleMap.create({
+    newMap = await GoogleMap?.create({
       id: "google-map",
       element: mapRef.current,
       apiKey: key,
       config: mapConfig,
+    });
+
+    // Add a marker to the map
+    await newMap.addMarker({
+      coordinate: {
+        lat: 33.6,
+        lng: -117.9,
+      },
+    });
+
+    // Move the map programmatically
+    await newMap.setCamera({
+      coordinate: {
+        lat: 33.6,
+        lng: -117.9,
+      },
+    });
+
+    // Handle marker click
+    await newMap.setOnMarkerClickListener((e: any) => {
+      presentAlert({
+        header: "Alert",
+        subHeader: "Important message",
+        message: "This is an alert!",
+        buttons: ["OK"],
+      });
     });
   };
 
