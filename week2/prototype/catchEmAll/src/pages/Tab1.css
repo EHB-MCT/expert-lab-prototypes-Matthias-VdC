@@ -1,0 +1,22 @@
+.modal {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    --width: 100%;
+    --height: 100%;
+}
+
+.modal-range {
+    --bar-background: #3f76a6;
+    --bar-background-active: rgb(223, 198, 198);
+    --knob-background: #3f76a6;
+    --knob-size: 40px;
+    --pin-background: #00559f;
+    --pin-color: #fff;
+    --height: 20%;
+    --width: 50%;
+    background: none !important;
+}

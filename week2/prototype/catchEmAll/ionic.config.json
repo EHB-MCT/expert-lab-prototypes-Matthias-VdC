@@ -1,0 +1,7 @@
+{
+  "name": "catchEmAll",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
