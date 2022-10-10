@@ -1,6 +1,5 @@
 import {
   IonButton,
-  IonContent,
   IonHeader,
   IonLabel,
   IonModal,
@@ -14,7 +13,7 @@ import {
 import { useRef, useState } from "react";
 import { Storage } from "@ionic/storage";
 import "./Tab1.css";
-import PokemonCard from "../components/PokemonCard";
+import PokemonCards from "../components/PokemonCards";
 
 const Tab1: React.FC = () => {
   const [firstOpen, setFirstOpen] = useState(false);
@@ -25,7 +24,7 @@ const Tab1: React.FC = () => {
   store.create();
 
   useIonViewWillEnter(async () => {
-    // NEED TO DELETE
+    // RESET INITIAL POKEMON
     // await store.set("first_time", null);
 
     await loading({
@@ -54,6 +53,7 @@ const Tab1: React.FC = () => {
         }
       })
       .finally(() => {
+        // console.log(store.get("user_pokemon"));
         dismiss();
       });
   }, [loading]);
@@ -67,15 +67,27 @@ const Tab1: React.FC = () => {
       let r = Math.floor(Math.random() * 151) + 1;
       if (savedPokemons.indexOf(r) === -1) savedPokemons.push(r);
     }
+
     savedPokemons.forEach(
-      (pokemon, index) => (savedPokemons[index] = pokemonList[pokemon])
+      (pokemon, index) =>
+        (savedPokemons[index] = {
+          name: pokemonList[pokemon],
+          level: 1,
+          experience: 1,
+          dv: Math.floor(Math.random() * 31) + 1,
+        })
     );
     setFirstOpen(false);
     await store.set("user_pokemon", savedPokemons);
+    await store.set("treasure", new Date());
     modal.current!.style.display = "none";
     modal.current?.remove();
-    console.log(await store.get("user_pokemon"));
+    // console.log(await store.get("user_pokemon"));
   }
+
+  const closeModal = () => {
+    setFirstOpen(false);
+  };
 
   return (
     <IonPage>
@@ -85,9 +97,14 @@ const Tab1: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <PokemonCard myValue={store.get("user_pokemon")} />
+      <PokemonCards myValue={store.get("user_pokemon")} />
 
-      <IonModal className="modal" isOpen={firstOpen} ref={modal}>
+      <IonModal
+        className="modal"
+        isOpen={firstOpen}
+        onDidDismiss={closeModal}
+        ref={modal}
+      >
         <IonLabel>How many pokemons do you want to start with?</IonLabel>
         <IonRange
           className="modal-range"

@@ -1,0 +1,59 @@
+.pokemonTreasure-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+    height: 100%;
+    text-align: center !important;
+}
+
+.pokemonTreasure-Img {
+    width: 100%;
+}
+
+.pokemonTreasure-img-container {
+    position: relative;
+    width: 50%;
+    margin-left: 50%;
+    margin-top: 50px;
+    margin-bottom: 32px;
+    transform: translateX(-50%);
+}
+
+#pokemonTreasure-pokemon-img {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 10%;
+    width: 250px;
+    height: 250px;
+    visibility: hidden; 
+}
+
+.appear {
+    transition: all ease-in-out 0.4s;
+    animation: revealPokemon forwards 1s all ease-in-out;
+    visibility: visible !important;
+}
+
+@keyframes revealPokemon {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@-webkit-keyframes revealPokemon {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
