@@ -40,7 +40,7 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <IonReactRouter>
+    <IonReactRouter forceRefresh>
       <IonTabs>
         <IonRouterOutlet>
           <Route exact path="/home">

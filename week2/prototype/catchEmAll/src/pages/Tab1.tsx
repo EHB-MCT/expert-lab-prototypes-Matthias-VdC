@@ -10,33 +10,34 @@ import {
   useIonLoading,
   useIonViewWillEnter,
 } from "@ionic/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Storage } from "@ionic/storage";
 import "./Tab1.css";
 import PokemonCards from "../components/PokemonCards";
 
 const Tab1: React.FC = () => {
-  const [firstOpen, setFirstOpen] = useState(false);
-  const [rangeValue, setRangeValue] = useState<any>(1);
-  const [loading, dismiss] = useIonLoading();
-  const modal = useRef<HTMLIonModalElement>(null);
   const store = new Storage();
   store.create();
+  const [firstOpen, setFirstOpen] = useState(false);
+  const [rangeValue, setRangeValue] = useState<any>(1);
+  const [dataValue, setDataValue] = useState<any>();
+  const [loading, dismiss] = useIonLoading();
+  const modal = useRef<HTMLIonModalElement>(null);
 
-  useIonViewWillEnter(async () => {
+  useIonViewWillEnter(() => {
     // RESET INITIAL POKEMON
     // await store.set("first_time", null);
 
-    await loading({
+    loading({
       message: "Loading...",
       duration: Infinity,
     });
+
     //check if app is run for first time https://forum.ionicframework.com/t/how-to-check-first-run-app-with-ionic-app/117214/3
-    await store
+    store
       .get("first_time")
       .then(async (val) => {
         if (val !== null) {
-          modal.current!.style.display = "none";
           modal.current?.remove();
           console.log("Already initialized pokemon!");
         } else {
@@ -53,10 +54,13 @@ const Tab1: React.FC = () => {
         }
       })
       .finally(() => {
-        // console.log(store.get("user_pokemon"));
         dismiss();
       });
-  }, [loading]);
+  }, []);
+
+  useEffect(() => {
+    setDataValue(store.get("user_pokemon"));
+  }, []);
 
   async function startApp() {
     const pokemonList: any = await store.get("pokemon");
@@ -82,7 +86,6 @@ const Tab1: React.FC = () => {
     await store.set("treasure", new Date());
     modal.current!.style.display = "none";
     modal.current?.remove();
-    // console.log(await store.get("user_pokemon"));
   }
 
   const closeModal = () => {
@@ -97,7 +100,7 @@ const Tab1: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <PokemonCards myValue={store.get("user_pokemon")} />
+      <PokemonCards myValue={dataValue} />
 
       <IonModal
         className="modal"

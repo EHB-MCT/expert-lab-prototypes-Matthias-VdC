@@ -14,7 +14,7 @@ type PokemonProps = {
   pokemonData: any;
 };
 
-const PokemonCard: React.FC<PokemonProps> = (pokemon) => {
+const PokemonCard: React.FC<PokemonProps> = (pokemonProps) => {
   const [poke, setPoke] = useState<any>();
   const [hover, setHover] = useState<any>();
   const [isOpen, setIsOpen] = useState(false);
@@ -22,23 +22,13 @@ const PokemonCard: React.FC<PokemonProps> = (pokemon) => {
   const closeModal = () => {
     setIsOpen(false);
   };
-  // let base = "base stat";
-  // let DV = "determined value: 1-31";
-  // let EV = "effort value (starts at 0, increases with battles): 0-65535";
-  // let level = "pokemon level: 1-100";
-
-  // let HP = (((base + DV) * 2 + Math.sqrt(EV) / 4) * level) / 100 + level + 10;
-  // let otherStat = ((base + DV) * 2 + (Math.sqrt(EV) / 4) * level) / 100 + 5;
-
   const modal = useRef<HTMLIonModalElement>(null);
 
   useEffect(() => {
-    setPoke(pokemon);
-  }, [pokemon]);
+    setPoke(pokemonProps);
+  }, [pokemonProps]);
 
   if (!poke) return null;
-
-  console.log("poke", poke);
 
   return (
     <div
