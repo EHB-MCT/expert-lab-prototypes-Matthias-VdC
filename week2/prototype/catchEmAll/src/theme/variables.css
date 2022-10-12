@@ -3,6 +3,8 @@ http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
 :root {
+  --ion-text-color: white;
+
   /** primary **/
   --ion-color-primary: #3880ff;
   --ion-color-primary-rgb: 56, 128, 255;
@@ -74,6 +76,33 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+}
+
+ion-content {
+  --ion-background-color:#1f1f1f;
+  background-color:#1f1f1f;
+}
+ion-tab-bar {
+  --ion-background-color: #3f3f3f;
+  background-color: #3f3f3f;
+}
+ion-tab-button {
+  --ion-background-color: #3f3f3f;
+  background-color: #3f3f3f;
+}
+ion-toolbar {
+  --ion-background-color: #3f3f3f;
+  background-color: #3f3f3f;
+  border-bottom: 1px solid #00000032;
+  z-index: 9999999;
+}
+.toolbar-container {
+  --ion-background-color: #3f3f3f;
+  background-color: #3f3f3f;
+}
+ion-modal {
+  --ion-background-color:#1f1f1f;
+  background-color:#1f1f1f;
 }
 
 @media (prefers-color-scheme: dark) {

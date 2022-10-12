@@ -26,7 +26,7 @@ const Tab1: React.FC = () => {
 
   useIonViewWillEnter(() => {
     // RESET INITIAL POKEMON
-    // await store.set("first_time", null);
+    // store.set("first_time", null);
 
     loading({
       message: "Loading...",
@@ -86,6 +86,7 @@ const Tab1: React.FC = () => {
     await store.set("treasure", new Date());
     modal.current!.style.display = "none";
     modal.current?.remove();
+    window.location.reload();
   }
 
   const closeModal = () => {
@@ -94,12 +95,6 @@ const Tab1: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader collapse="condense">
-        <IonToolbar>
-          <IonTitle size="large">Tab 1</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
       <PokemonCards myValue={dataValue} />
 
       <IonModal

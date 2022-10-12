@@ -13,20 +13,28 @@
 
 .pokemonTreasure-img-container {
     position: relative;
-    width: 50%;
+    width: 80%;
+    max-width: 800px;
     margin-left: 50%;
-    margin-top: 50px;
     margin-bottom: 32px;
+    margin-top: 10vh;
     transform: translateX(-50%);
+}
+
+/* mobile */
+@media (max-width: 520px) {
+    .pokemonTreasure-img-container {
+        margin-top: 50% !important;
+    }
 }
 
 #pokemonTreasure-pokemon-img {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    left: 10%;
-    width: 250px;
-    height: 250px;
+    left: 5%;
+    width: 50%;
+    height: auto;
     visibility: hidden; 
 }
 

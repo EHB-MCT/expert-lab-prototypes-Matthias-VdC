@@ -4,7 +4,6 @@ import {
   IonImg,
   IonLoading,
   IonPage,
-  useIonViewWillEnter,
 } from "@ionic/react";
 import { Storage } from "@ionic/storage";
 import { useEffect, useState } from "react";
@@ -12,8 +11,11 @@ import pokemon from "../assets/images/whosthatpokemon.webp";
 import "./Tab2.css";
 
 const Tab2: React.FC = () => {
-  const [difference, setDifference] = useState<any>();
+  // difference in time from [currentTime - previousTime]
+  // if current time is equal or bigger than previousTime the user can find a new pokemon
+  const [difference, setDifference] = useState<any>(0);
   const [previousTime, setPreviousTime] = useState<any>(new Date());
+  const [getPokemonButton, setGetPokemonButton] = useState(false);
   const [appear, setAppear] = useState("");
   // In minutes
   const waitTime = 60;
@@ -25,6 +27,7 @@ const Tab2: React.FC = () => {
     store.get("treasure").then((response) => {
       setPreviousTime(response);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -38,6 +41,14 @@ const Tab2: React.FC = () => {
     };
   }, [previousTime]);
 
+  useEffect(() => {
+    if (difference >= waitTime) {
+      setGetPokemonButton(false);
+    } else {
+      setGetPokemonButton(true);
+    }
+  }, [difference]);
+
   async function getUniquePokemon() {
     const pokemonList = await store.get("pokemon");
     const savedPokemons = await store.get("user_pokemon");
@@ -46,10 +57,15 @@ const Tab2: React.FC = () => {
     let r = Math.floor(Math.random() * 151) + 1;
     let passed = true;
 
-    console.log(pokemonList[r]);
-
     while (passed) {
-      if (!savedPokemons.includes(pokemonList[r])) {
+      if (
+        // Check if pokemon is already owned, if so it takes another random pokemon
+        savedPokemons.some(
+          // eslint-disable-next-line no-loop-func
+          (singlePokemon: any) =>
+            singlePokemon.name.name === pokemonList[r].name
+        )
+      ) {
         passed = false;
       } else {
         r = Math.floor(Math.random() * 151) + 1;
@@ -71,10 +87,13 @@ const Tab2: React.FC = () => {
           data.sprites.front_default;
         setAppear("appear");
       });
-
     await store.set("treasure", new Date()).then(async () => {
       await store.set("user_pokemon", savedPokemons);
     });
+    setPreviousTime(new Date());
+    setDifference(
+      Math.round((new Date().getTime() - previousTime.getTime()) / 60000)
+    );
   }
 
   if (typeof difference === "undefined")
@@ -91,16 +110,12 @@ const Tab2: React.FC = () => {
             alt=""
           ></IonImg>
         </div>
-        {waitTime - difference > 0 ? (
+        {difference < waitTime ? (
           <IonButton disabled={true}>
             {waitTime - difference} minutes left
           </IonButton>
         ) : (
-          <IonButton
-            onClick={() => {
-              getUniquePokemon();
-            }}
-          >
+          <IonButton disabled={getPokemonButton} onClick={getUniquePokemon}>
             Get Pokemon
           </IonButton>
         )}
