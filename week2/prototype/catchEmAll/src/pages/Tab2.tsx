@@ -1,3 +1,4 @@
+import { LocalNotifications } from "@capacitor/local-notifications";
 import {
   IonButton,
   IonContent,
@@ -8,6 +9,7 @@ import {
 import { Storage } from "@ionic/storage";
 import { useEffect, useState } from "react";
 import pokemon from "../assets/images/whosthatpokemon.webp";
+import NotificationService from "../services/NotificationService";
 import "./Tab2.css";
 
 const Tab2: React.FC = () => {
@@ -17,9 +19,9 @@ const Tab2: React.FC = () => {
   const [previousTime, setPreviousTime] = useState<any>(new Date());
   const [getPokemonButton, setGetPokemonButton] = useState(false);
   const [appear, setAppear] = useState("");
-  // In minutes
-  const waitTime = 60;
 
+  // In minutes
+  const waitTime = 60 * 24;
   const store = new Storage();
   store.create();
 
@@ -27,6 +29,7 @@ const Tab2: React.FC = () => {
     store.get("treasure").then((response) => {
       setPreviousTime(response);
     });
+    LocalNotifications.removeAllDeliveredNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -63,7 +66,7 @@ const Tab2: React.FC = () => {
         savedPokemons.some(
           // eslint-disable-next-line no-loop-func
           (singlePokemon: any) =>
-            singlePokemon.name.name === pokemonList[r].name
+            singlePokemon.name.name !== pokemonList[r].name
         )
       ) {
         passed = false;
@@ -78,6 +81,11 @@ const Tab2: React.FC = () => {
       experience: 1,
       dv: Math.floor(Math.random() * 31) + 1,
     });
+
+    let now = new Date();
+    now.setMinutes(now.getMinutes() + waitTime); // timestamp
+    now = new Date(now); // Date object
+    NotificationService.schedule(now);
 
     await fetch(pokemonList[r].url)
       .then((response) => response.json())

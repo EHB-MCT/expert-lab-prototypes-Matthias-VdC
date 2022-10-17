@@ -1,12 +1,9 @@
 import {
   IonButton,
-  IonHeader,
   IonLabel,
   IonModal,
   IonPage,
   IonRange,
-  IonTitle,
-  IonToolbar,
   useIonLoading,
   useIonViewWillEnter,
 } from "@ionic/react";
@@ -14,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { Storage } from "@ionic/storage";
 import "./Tab1.css";
 import PokemonCards from "../components/PokemonCards";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 const Tab1: React.FC = () => {
   const store = new Storage();
@@ -32,6 +30,8 @@ const Tab1: React.FC = () => {
       message: "Loading...",
       duration: Infinity,
     });
+
+    LocalNotifications.removeAllDeliveredNotifications();
 
     //check if app is run for first time https://forum.ionicframework.com/t/how-to-check-first-run-app-with-ionic-app/117214/3
     store
@@ -60,6 +60,7 @@ const Tab1: React.FC = () => {
 
   useEffect(() => {
     setDataValue(store.get("user_pokemon"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function startApp() {
@@ -103,7 +104,7 @@ const Tab1: React.FC = () => {
         onDidDismiss={closeModal}
         ref={modal}
       >
-        <IonLabel>How many pokemons do you want to start with?</IonLabel>
+        <h1>How many pokemons do you want to start with?</h1>
         <IonRange
           className="modal-range"
           class="modal-range"
