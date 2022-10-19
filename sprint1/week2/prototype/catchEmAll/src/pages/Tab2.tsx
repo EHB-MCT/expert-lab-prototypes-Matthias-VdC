@@ -21,7 +21,7 @@ const Tab2: React.FC = () => {
   const [appear, setAppear] = useState("");
 
   // In minutes
-  const waitTime = 60 * 24;
+  const waitTime = 0;
   const store = new Storage();
   store.create();
 
