@@ -1,38 +1,39 @@
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/self-closing-comp */
+import { Node, useRef } from 'react';
 import React, { useEffect, useState } from 'react';
-import type { Node } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
+  Text,
   useColorScheme,
   View,
-  Text,
 } from 'react-native';
+import mapstyle from './mapstyle.json';
+import MapMarkers from './MapMarkers.js';
 import Geolocation from '@react-native-community/geolocation';
 // import MapViewDirections from 'react-native-maps-directions';
-
-import MapView from 'react-native-maps';
-
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
+import UserMapIcon from './UserMapIcon.js';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import MapView, { Marker } from 'react-native-maps';
+import { magnetometer, SensorTypes, setUpdateIntervalForType } from 'react-native-sensors';
+import { map, filter } from 'rxjs/operators';
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const [location, setLocation] = useState();
-  const [userLocation, setUserLocation] = useState();
+  const [location, setLocation] = useState({ longitude: 4.3230004, latitude: 50.8416775 });
+  const [heading, setHeading] = useState(0);
+  const previousLocation = useRef({});
+  const mapRef = useRef();
+  const apiKey = process.env.API_KEY;
 
-  const origin = { latitude: 37.3318456, longitude: -122.0296002 };
-  const destination = { latitude: 37.771707, longitude: -122.4053769 };
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   useEffect(() => {
+    if (subscription) {
+      subscription.remove();
+    }
+
     Geolocation.setRNConfiguration({
       skipPermissionRequests: false,
       authorizationLevel: 'whenInUse',
@@ -41,47 +42,122 @@ const App: () => Node = () => {
 
     Geolocation.requestAuthorization(() => {
       //SUCCESS
-      Geolocation.getCurrentPosition((e) => {
-        console.log(e.coords.latitude, e.coords.longitude);
-        setLocation({ latitude: e.coords.latitude, longitude: e.coords.longitude });
-      });
+      console.log('location authorized');
+
+      Geolocation.watchPosition((e) => {
+        setLocation({ longitude: e.coords.longitude, latitude: e.coords.latitude });
+        mapRef.current.animateCamera({
+          center: {
+            latitude: e.coords.latitude,
+            longitude: e.coords.longitude,
+          },
+          heading: heading,
+          altitude: 1000,
+          pitch: 0,
+          zoom: 15,
+        }, 1000);
+      }, {}, { interval: 500, distanceFilter: 0, enableHighAccuracy: true });
+
     }, (err) => {
       // ERROR
       console.log(err);
     });
 
-    Geolocation.watchPosition((e) => {
-      // success
-      console.log(e);
-      setUserLocation({ latitude: e.coords.latitude, longitude: e.coords.longitude, heading: e.coords.heading, speed: e.coords.heading });
-    }, (err) => {
-      //error
-      console.log(err);
-    }, { interval: 1000, timeout: 1000, distanceFilter: 0 });
+    setUpdateIntervalForType(SensorTypes.magnetometer, 100); //every 100ms
 
-
+    const subscription = magnetometer
+      .subscribe(
+        sensorData => {
+          mapRef.current.getCamera(camera => {
+            console.log(camera);
+          }, (err) => {
+            console.log(err);
+          });
+          setHeading(getAngle(sensorData) + 190);
+        },
+        error => {
+          console.log('The sensor is not available');
+        }
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!location && !userLocation) { return null; }
+  // adapted from: https://github.com/rahulhaque/compass-react-native/blob/master/App.js
+  function getAngle({ x, y, z }) {
+    let angle = 0;
+    if (Math.atan2(y, x) >= 0) {
+      angle = Math.atan2(y, x) * (180 / Math.PI);
+    } else {
+      angle = (Math.atan2(y, x) + 2 * Math.PI) * (180 / Math.PI);
+    }
+    return Math.round(angle);
+  }
+
+
+  useEffect(() => {
+    previousLocation.current = location;
+  }, [location]);
+
   return (
     <SafeAreaView>
       <MapView
+        pitchEnabled={false}
+        zoomEnabled={false}
+        scrollEnabled={false}
+        rotateEnabled={false}
+        loadingEnabled={true}
+        followsUserLocation={true}
+        moveOnMarkerPress={false}
         style={{ minHeight: '100%' }}
-        initialRegion={{
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+        customMapStyle={mapstyle}
+        ref={mapRef}
+        initialCamera={{
+          zoom: 15,
+          center: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          heading: heading,
+          altitude: 1000,
+          pitch: 0,
         }}
+        camera={{
+          zoom: 15,
+          center: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          heading: heading,
+          altitude: 1000,
+          pitch: 0,
+        }}
+        showsCompass={false}
       >
+        <Marker coordinate={location} flat anchor={{ x: 0.5, y: 0.5 }}>
+          <View
+            style={{
+              transform: [{ rotate: `${heading}deg` }],
+            }}>
+            <UserMapIcon fill="#98f5e1" stroke="#fbf8cc" strokeWidth={4} style={{ transform: [{ rotate: '180deg' }] }} />
+          </View>
+        </Marker>
+        <MapMarkers title="Random Info" />
+        {/* onMarkerPress={(e) => {
+          console.log(e.currentTarget, 1000);
+          // mapRef.current.animateToRegion()
+        } */
+        }
         {/* <MapViewDirections
         origin={origin}
         destination={destination}
-        apikey={"AIzaSyDehWh4MS-F_1lInu3tDMl5_d489x2s_hM"}
+        apikey={apiKey}
       /> */}
       </MapView>
-      <Text style={{ position: 'absolute', top: 0, left: 0, color: 'black', zIndex: 99 }}>{userLocation?.longitude}</Text>
-    </SafeAreaView>
+      <Text style={{ position: 'absolute', top: 5, left: 5, fontSize: 28, backgroundColor: 'rgba(0,0,0,0.7)', borderRadius: 6, padding: 12 }}>
+        {/* {'\n'} */}
+        Heading: {heading}
+      </Text>
+    </SafeAreaView >
   );
 };
 
