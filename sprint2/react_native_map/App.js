@@ -73,7 +73,7 @@ const App: () => Node = () => {
           }, (err) => {
             console.log(err);
           });
-          setHeading(getAngle(sensorData) + 190);
+          setHeading(getAngle(sensorData));
         },
         error => {
           console.log('The sensor is not available');
