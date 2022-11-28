@@ -1,4 +1,8 @@
 export default function usersMiddleWare(req, res, next) {
-    console.log('user middleWare working');
+    try {
+        console.log('user middleWare working');
+    } catch (err) {
+        res.send(err);
+    }
     next();
 }

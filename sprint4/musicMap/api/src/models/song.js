@@ -1,5 +1,5 @@
-const songs = {
-    id: 0,
+export default {
+    _id: 0,
     artist: '',
     song: '',
     preciseLocation: [

@@ -1,4 +1,8 @@
 export default function songsMiddleWare(req, res, next) {
-    console.log('song middleWare working');
+    try {
+        console.log('song middleWare working');
+    } catch (err) {
+        res.send(err);
+    }
     next();
 }

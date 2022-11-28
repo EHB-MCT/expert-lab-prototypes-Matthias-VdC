@@ -36,7 +36,7 @@ export const createSong = (req, res, next) => {
                 finalBody.dateOffset = dateNow.getTimezoneOffset();
 
                 const result = SONGCOLLECTION.insertOne(finalBody);
-                res.send(`Artist, song & location has been saved succesfully! \n ${req.body.artist} - ${req.body.song}`);
+                res.send(`Artist, song & location has been saved succesfully! ${result}`);
             }
         }
     }

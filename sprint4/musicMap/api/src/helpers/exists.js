@@ -3,7 +3,7 @@
  * @param collection - Collection from database where request needs to know if it's a unique value
  */
 export default async function exists(body, collection) {
-    console.log(collection)
+    console.log(collection);
     if (body && collection) {
         if (body.length === 0) { return false; }
         const exist = await collection.find(body).toArray();

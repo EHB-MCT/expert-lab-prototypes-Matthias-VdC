@@ -1,7 +1,7 @@
-const user = {
-    id: 0,
+export default {
     username: '',
     email: '',
     password: '',
+    location: [],
     roles: [],
 };
