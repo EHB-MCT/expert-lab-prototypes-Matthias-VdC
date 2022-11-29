@@ -5,23 +5,22 @@ export default function verifyModel(body, model) {
         let matches = true;
         modelArray.forEach(e => {
             if (body.hasOwnProperty(e[0])) {
-                console.log(e[0]);
             } else {
                 matches = false;
                 return;
             }
         });
-        console.log(matches);
 
         if (matches) {
             console.log('model correct');
-            return true;
+            return false;
         } else {
             console.log('model not matching');
-            return false;
+            return true;
         }
     }
     catch (err) {
         console.log(err);
+        return true;
     }
 }

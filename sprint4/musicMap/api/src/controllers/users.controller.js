@@ -1,27 +1,26 @@
 import DATABASE from '../database.js';
-import bcrypt from 'bcrypt';
-import exists from '../helpers/exists.js';
 import verifyModel from '../helpers/verifyModel.js';
 import user from '../models/user.js';
+import exists from '../helpers/exists.js';
+import encryptor from '../helpers/encryptor.js';
 
 const USERCOLLECTION = DATABASE.collection('userCollection');
 
 /*
 *   GET
 */
-export const getAll = async (req, res, next) => {
+export const getAll = async (req, res) => {
     try {
 
         console.log('getting all users');
-        let all = USERCOLLECTION.find().toArray();
+        let all = await USERCOLLECTION.find().toArray();
         res.send(all);
     } catch (err) {
 
     }
-    next();
 };
 
-export const getSpecific = async (req, res, next) => {
+export const getSpecific = async (req, res) => {
     try {
 
         console.log('getting specific user');
@@ -29,38 +28,32 @@ export const getSpecific = async (req, res, next) => {
     } catch (err) {
 
     }
-    next();
 };
 
 
 /*
 *   POST
 */
-export const register = async (req, res, next) => {
+export const register = async (req, res) => {
     try {
-        console.log('registering');
-        if (!verifyModel(req.body, user)) { res.send('Model not correct'); return; }
-        // if (exists(req.body, USERCOLLECTION)) { res.send('User already exists'); next(); }
+        let existing = await exists(req.body, USERCOLLECTION, ['username', 'email']);
+        if (await verifyModel(req.body, user)) { res.send("Model not correct, all required fields aren't present!"); return; }
+        if (existing) { res.send(`${existing} already exists!`); return; }
 
-        await bcrypt.genSalt(10, (err1, salt) => {
-            if (err1) { res.send(err1); } else {
-                bcrypt.hash(req.body.password, salt, function (err2, hash) {
-                    console.log(hash);
-                    if (err2) { res.send(err2); } else {
-                        // Store hash in DB.
-                        console.log('registering user to db');
-                        return;
-                    }
-                });
-            }
-        });
+        const encryptedPassword = await encryptor(req, res, req.body.password);
+        //combine objects https://stackoverflow.com/questions/9362716/how-to-duplicate-object-properties-in-another-object
+        let userModel = Object.assign({ ...user }, req.body);
+        userModel.password = encryptedPassword;
+
+        await USERCOLLECTION.insertOne(userModel);
+        // console.log('user registered to db', registerUser);
+        res.send('User succesfully created!');
     } catch (err) {
         res.send(err);
     }
-    next();
 };
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
     try {
 
         console.log('logging in');
@@ -68,5 +61,4 @@ export const login = async (req, res, next) => {
     } catch (err) {
 
     }
-    next();
 };
