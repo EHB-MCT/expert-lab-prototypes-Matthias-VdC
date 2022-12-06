@@ -1,219 +1,126 @@
-// Example of Splash, Login and Sign Up in React Native
-// https://aboutreact.com/react-native-login-and-signup/
+import React, { useEffect, useState } from 'react';
+import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-// Import React and Component
-import React, { useState, createRef } from 'react';
-import {
-    StyleSheet,
-    TextInput,
-    View,
-    Text,
-    ScrollView,
-    Image,
-    Keyboard,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-} from 'react-native';
+import retrieveUserSession from '../hooks/retrieveUserSession';
+import storeUserSession from '../hooks/storeUserSession';
 
-import AsyncStorage from '@react-native-community/async-storage';
+export default function LoginScreen({ navigation }) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [disableLogin, setDisableLogin] = useState(true);
 
-import Loader from './Components/Loader';
-
-const LoginScreen = ({ navigation }) => {
-    const [userEmail, setUserEmail] = useState('');
-    const [userPassword, setUserPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [errortext, setErrortext] = useState('');
-
-    const passwordInputRef = createRef();
-
-    const handleSubmitPress = () => {
-        setErrortext('');
-        if (!userEmail) {
-            alert('Please fill Email');
-            return;
+    useEffect(() => {
+        if (email.length > 0 && password.length > 0) {
+            setDisableLogin(false);
         }
-        if (!userPassword) {
-            alert('Please fill Password');
-            return;
+        else {
+            setDisableLogin(true);
         }
-        setLoading(true);
-        let dataToSend = { email: userEmail, password: userPassword };
-        let formBody = [];
-        for (let key in dataToSend) {
-            let encodedKey = encodeURIComponent(key);
-            let encodedValue = encodeURIComponent(dataToSend[key]);
-            formBody.push(encodedKey + '=' + encodedValue);
-        }
-        formBody = formBody.join('&');
+    }, [email, password]);
 
-        fetch('http://localhost:3000/api/user/login', {
+    useEffect(() => {
+        retrieveUserSession().then(e => {
+            if (e !== null) {
+                navigation.replace('Navigator');
+            }
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    async function login(emailvar, passwordvar, remembervar) {
+        await fetch('http://192.168.1.12:3000/user/login', {
             method: 'POST',
-            body: formBody,
             headers: {
-                //Header Defination
-                'Content-Type':
-                    'application/x-www-form-urlencoded;charset=UTF-8',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
             },
+            body: JSON.stringify({ email: emailvar, password: passwordvar, remember: remembervar }),
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                //Hide Loader
-                setLoading(false);
-                console.log(responseJson);
-                // If server response message same as Data Matched
-                if (responseJson.status === 'success') {
-                    AsyncStorage.setItem('user_id', responseJson.data.email);
-                    console.log(responseJson.data.email);
-                    navigation.replace('DrawerNavigationRoutes');
-                } else {
-                    setErrortext(responseJson.msg);
-                    console.log('Please check your email id or password');
+            .then(res => res.json())
+            .then(async data => {
+                if (!data.error) {
+                    console.log('data', JSON.stringify(data));
+                    storeUserSession(data);
                 }
             })
-            .catch((error) => {
-                //Hide Loader
-                setLoading(false);
-                console.error(error);
-            });
-    };
+            .catch(err => { throw console.log(err); });
+    }
+
+    function verifyLogin() {
+        retrieveUserSession().then(e => {
+            if (e !== null) {
+                navigation.replace('Navigator');
+            }
+        });
+    }
+
 
     return (
-        <View style={styles.mainBody}>
-            <Loader loading={loading} />
-            <ScrollView
-                keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                }}>
-                <View>
-                    <KeyboardAvoidingView enabled>
-                        <View style={{ alignItems: 'center' }}>
-                            <Image
-                                source={require('../Image/aboutreact.png')}
-                                style={{
-                                    width: '50%',
-                                    height: 100,
-                                    resizeMode: 'contain',
-                                    margin: 30,
-                                }}
-                            />
-                        </View>
-                        <View style={styles.SectionStyle}>
-                            <TextInput
-                                style={styles.inputStyle}
-                                onChangeText={(UserEmail) =>
-                                    setUserEmail(UserEmail)
-                                }
-                                placeholder="Enter Email" //dummy@abc.com
-                                placeholderTextColor="#8b9cb5"
-                                autoCapitalize="none"
-                                keyboardType="email-address"
-                                returnKeyType="next"
-                                onSubmitEditing={() =>
-                                    passwordInputRef.current &&
-                                    passwordInputRef.current.focus()
-                                }
-                                underlineColorAndroid="#f000"
-                                blurOnSubmit={false}
-                            />
-                        </View>
-                        <View style={styles.SectionStyle}>
-                            <TextInput
-                                style={styles.inputStyle}
-                                onChangeText={(UserPassword) =>
-                                    setUserPassword(UserPassword)
-                                }
-                                placeholder="Enter Password" //12345
-                                placeholderTextColor="#8b9cb5"
-                                keyboardType="default"
-                                ref={passwordInputRef}
-                                onSubmitEditing={Keyboard.dismiss}
-                                blurOnSubmit={false}
-                                secureTextEntry={true}
-                                underlineColorAndroid="#f000"
-                                returnKeyType="next"
-                            />
-                        </View>
-                        {errortext != '' ? (
-                            <Text style={styles.errorTextStyle}>
-                                {errortext}
-                            </Text>
-                        ) : null}
-                        <TouchableOpacity
-                            style={styles.buttonStyle}
-                            activeOpacity={0.5}
-                            onPress={handleSubmitPress}>
-                            <Text style={styles.buttonTextStyle}>LOGIN</Text>
-                        </TouchableOpacity>
-                        <Text
-                            style={styles.registerTextStyle}
-                            onPress={() => navigation.navigate('RegisterScreen')}>
-                            New Here ? Register
-                        </Text>
-                    </KeyboardAvoidingView>
-                </View>
-            </ScrollView>
+        <View style={styles.container}>
+            <Text style={{ fontSize: 24 }}>
+                LOGIN
+            </Text>
+            <View>
+                <TextInput
+                    style={styles.inputField}
+                    placeholder="Email"
+                    onChangeText={(e) => setEmail(e)}
+                />
+            </View>
+            <View>
+                <TextInput
+                    style={styles.inputField}
+                    placeholder="Password"
+                    onChangeText={(e) => setPassword(e)}
+                    secureTextEntry={true}
+                />
+            </View>
+            <TouchableOpacity disabled={disableLogin} onPress={() => { login(email, password, false).then(() => verifyLogin()); }} style={styles.submitButton}>
+                <Text style={styles.submitText}>
+                    LOGIN
+                </Text>
+            </TouchableOpacity>
+            <Text>
+                Don't have an account?
+                <TouchableOpacity onPress={() => { navigation.navigate('RegisterScreen'); }}>
+                    <Text>
+                        Register
+                    </Text>
+                </TouchableOpacity>
+                instead.
+            </Text>
         </View>
     );
-};
-export default LoginScreen;
+}
 
 const styles = StyleSheet.create({
-    mainBody: {
-        flex: 1,
+    container: {
+        backgroundColor: '#000',
+        display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
-        backgroundColor: '#307ecc',
-        alignContent: 'center',
-    },
-    SectionStyle: {
-        flexDirection: 'row',
-        height: 40,
-        marginTop: 20,
-        marginLeft: 35,
-        marginRight: 35,
-        margin: 10,
-    },
-    buttonStyle: {
-        backgroundColor: '#7DE24E',
-        borderWidth: 0,
-        color: '#FFFFFF',
-        borderColor: '#7DE24E',
-        height: 40,
         alignItems: 'center',
-        borderRadius: 30,
-        marginLeft: 35,
-        marginRight: 35,
+        height: Dimensions.get('window').height,
+    },
+    submitButton: {
+        backgroundColor: 'rgb(50,50,150)',
+        borderRadius: 8,
+        width: Dimensions.get('window').width - Dimensions.get('window').width / 1.5,
+        marginTop: 34,
+        marginBottom: 100,
+    },
+    submitText: {
+        textAlign: 'center',
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 6,
+        paddingRight: 6,
+    },
+    inputField: {
+        width: Dimensions.get('window').width - Dimensions.get('window').width / 5,
+        backgroundColor: 'rgb(100,100, 200)',
+        borderRadius: 12,
+        paddingLeft: 12,
         marginTop: 20,
-        marginBottom: 25,
-    },
-    buttonTextStyle: {
-        color: '#FFFFFF',
-        paddingVertical: 10,
-        fontSize: 16,
-    },
-    inputStyle: {
-        flex: 1,
-        color: 'white',
-        paddingLeft: 15,
-        paddingRight: 15,
-        borderWidth: 1,
-        borderRadius: 30,
-        borderColor: '#dadae8',
-    },
-    registerTextStyle: {
-        color: '#FFFFFF',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: 14,
-        alignSelf: 'center',
-        padding: 10,
-    },
-    errorTextStyle: {
-        color: 'red',
-        textAlign: 'center',
-        fontSize: 14,
     },
 });

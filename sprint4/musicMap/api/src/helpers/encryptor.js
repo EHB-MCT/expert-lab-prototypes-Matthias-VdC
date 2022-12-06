@@ -6,7 +6,6 @@ const encryptor = (req, res, password) => {
             if (err1) { res.send(err1); } else {
                 await bcrypt.hash(req.body.password, salt, (err2, hash) => {
                     if (err2) { res.send(err2); } else {
-                        console.log('encryptor', hash);
                         return resolve(hash);
                     }
                 });

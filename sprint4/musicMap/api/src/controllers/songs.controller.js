@@ -1,6 +1,7 @@
 import checkSongcollectionField from '../helpers/checkSongsField.js';
 
 import DATABASE from '../database.js';
+import authenticateAccessToken from '../helpers/authenticateAccessToken.js';
 
 const SONGCOLLECTION = DATABASE.collection('songCollection');
 
@@ -26,8 +27,11 @@ export const getAll = (req, res, next) => {
 */
 export const createSong = (req, res, next) => {
     try {
+        console.log('trying to save song');
         if (req.body) {
-            if (checkSongcollectionField(req.body)) {
+            // if (checkSongcollectionField(req.body)) {
+            console.log(authenticateAccessToken(req.body.token));
+            if (authenticateAccessToken(req.body.token)) {
                 console.log(req.body);
                 let finalBody = req.body;
                 let dateNow = new Date();

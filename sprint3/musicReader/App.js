@@ -48,6 +48,7 @@ const App: () => Node = () => {
           const noti = JSON.parse(notification);
           if (noti) {
             console.log(noti);
+            noti.iconLarge = '';
             // SPOTIFY
             if (noti.app === 'com.spotify.music') {
               setMusicTitle(noti.title);

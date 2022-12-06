@@ -5,7 +5,6 @@ import userCollection from './routes/users.routes.js';
 const app = express();
 const PORT = 3000;
 
-
 app.use(errorHandler({ dumpExceptions: true, showStack: true }));
 // .json() & .urlencoded() needed for post and put requests
 app.use(express.json());
@@ -14,6 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 try {
+
 
     // ROUTES
     app.use('/songcollection', songCollection);
